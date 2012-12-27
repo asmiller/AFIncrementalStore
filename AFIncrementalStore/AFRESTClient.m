@@ -188,12 +188,14 @@ static NSString * AFQueryByAppendingParameters(NSString *query, NSDictionary *pa
     dispatch_once(&onceToken, ^{
         _candidateKeys = [[NSArray alloc] initWithObjects:@"id", @"identifier", @"url", @"URL", nil];
     });
-    
-    NSString *key = [[representation allKeys] firstObjectCommonWithArray:_candidateKeys];
-    if (key) {
-        id value = [representation valueForKey:key];
-        if (value) {
-            return [value description];
+
+    id value;
+    for (NSString *key in _candidateKeys) {
+        if ([[representation allKeys] containsObject:key]) {
+            value = [representation valueForKey:key];
+            if (value) {
+                return [value description];
+            }
         }
     }
     
