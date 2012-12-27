@@ -81,9 +81,13 @@ NSDate * AFDateFromISO8601String(NSString *ISO8601String) {
     return [NSDate dateWithTimeIntervalSince1970:mktime(&tm)];
 }
 
-static NSString * AFPluralizedString(NSString *string) {
-    if ([string hasSuffix:@"ss"] || [string hasSuffix:@"sh"] || [string hasSuffix:@"ch"]) {
+static NSString *AFPluralizedString(NSString *string) {
+    if ([string isEqualToString:@"Person"]) {
+        return @"people";
+    } else if ([string hasSuffix:@"ss"] || [string hasSuffix:@"se"] || [string hasSuffix:@"sh"] || [string hasSuffix:@"ch"]) {
         return [[string stringByAppendingString:@"es"] lowercaseString];
+    } else if ([string hasSuffix:@"iz"]) {
+        return [[string stringByAppendingString:@"zes"] lowercaseString];
     } else {
         return [[string stringByAppendingString:@"s"] lowercaseString];
     }
