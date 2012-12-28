@@ -465,7 +465,12 @@ withAttributeAndRelationshipValuesFromManagedObject:(NSManagedObject *)managedOb
 
     if ([self.HTTPClient respondsToSelector:@selector(requestForInsertedObject:)]) {
         for (NSManagedObject *insertedObject in [saveChangesRequest insertedObjects]) {
-            NSURLRequest *request = [self.HTTPClient requestForInsertedObject:insertedObject];
+            
+            NSURLRequest *request = nil;
+            if(![insertedObject respondsToSelector:NSSelectorFromString(@"id")] || [insertedObject valueForKey:@"id"] == nil){
+                request  = [self.HTTPClient requestForInsertedObject:insertedObject];
+            }
+            
             if (!request) {
                 [backingContext performBlockAndWait:^{
                     CFUUIDRef UUID = CFUUIDCreate(NULL);
@@ -525,7 +530,8 @@ withAttributeAndRelationshipValuesFromManagedObject:(NSManagedObject *)managedOb
             NSManagedObjectID *backingObjectID = [self objectIDForBackingObjectForEntity:[updatedObject entity] withResourceIdentifier:AFResourceIdentifierFromReferenceObject([self referenceObjectForObjectID:updatedObject.objectID])];
 
             NSURLRequest *request = [self.HTTPClient requestForUpdatedObject:updatedObject];
-            if (!request) {
+            if (!request || request.HTTPBody == nil) {
+                NSLog(@"Not updating, since nothing changed.");
                 [backingContext performBlockAndWait:^{
                     NSManagedObject *backingObject = [backingContext existingObjectWithID:backingObjectID error:nil];
                     [self updateBackingObject:backingObject withAttributeAndRelationshipValuesFromManagedObject:updatedObject];
